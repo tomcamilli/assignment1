@@ -1,0 +1,358 @@
+require 'csv'
+
+class Room
+	def initialize(building, room, capacity, computersAvailable, seatingAvailable, seatingType, foodAllowed, priority, roomType)
+		@building = building
+		@room = room
+		@capacity = capacity
+		@computersAvailable = computersAvailable
+		@seatingAvailable = seatingAvailable
+		@seatingType = seatingType
+		@foodAllowed = foodAllowed
+		@priority = priority
+		@roomType = roomType
+	end
+	
+	def building
+		@building
+	end
+	def room
+		@room
+	end
+	def capacity
+		@capacity
+	end
+	def computersAvailable
+		@computersAvailable
+	end
+	def seatingAvailable
+		@seatingAvailable
+	end
+	def seatingType
+		@seatingType
+	end
+	def foodAllowed
+		@foodAllowed
+	end
+	def priority
+		@priority
+	end
+	def roomType
+		@roomType
+	end
+end
+
+class Schedule
+	def initialize(building, room, date, time, available, bookingType)
+		@building = building
+		@room = room
+		@date = date
+		@time = time
+		@available = available
+		@bookingType = bookingType
+	end
+	def building
+		@building
+	end
+	def room
+		@room
+	end
+	def date
+		@date
+	end
+	def time
+		@time
+	end
+	def available
+		@available
+	end
+	def bookingType
+		@bookingType
+	end
+end
+
+# Reads in the room file
+def readRooms (filename)
+	roomList = CSV.parse(File.read(filename), headers: true)
+	roomObjList = Array.new
+	c = 0
+	roomList.each do
+		room = Room.new(roomList[c][0],roomList[c][1],roomList[c][2],roomList[c][3],roomList[c][4],roomList[c][5],roomList[c][6],roomList[c][7],roomList[c][8])
+		c += 1
+		roomObjList.push(room)
+	end
+	return roomObjList
+end
+
+# Reads in the schedule file
+def readSchedule (filename)
+	scheduleList = CSV.parse(File.read(filename), headers: true)
+	scheduleObjList = Array.new
+	c = 0
+	scheduleList.each do
+		schedule = Schedule.new(scheduleList[c][0],scheduleList[c][1],scheduleList[c][2],scheduleList[c][3],scheduleList[c][4],scheduleList[c][5])
+		c += 1
+		scheduleObjList.push(schedule)
+	end
+	return scheduleObjList
+end
+
+# Gets the event date
+def getEventDate (schedule)
+	i = 0
+	while i == 0
+		print "Date of event (format \"yyyy-mm-dd\"): "
+		date = gets.chomp
+		dateSplit = date.split("-")
+		if dateSplit[0].to_i > 9999 or dateSplit[1].to_i > 12 or dateSplit[2].to_i > 31
+			puts "Please enter a valid event date."
+		else
+			i = i + 1
+		end
+	end
+
+	index = 0
+	scheduleTemp = schedule.map(&:clone)
+	schedule.each do |scheduleObj|
+		scheduleSplit = (scheduleObj.date).split("-")
+		if scheduleSplit[0].to_i != dateSplit[0].to_i or scheduleSplit[1].to_i < dateSplit[1].to_i or scheduleSplit[2].to_i < dateSplit[2].to_i
+			scheduleTemp.delete_at(index)
+			index = index - 1
+		end
+		index = index + 1
+	end
+	if scheduleTemp.length == 0
+		puts "Please enter a valid date."
+		schedule = getEventDate(schedule)
+	end
+	puts scheduleTemp.length 
+	return scheduleTemp
+end
+
+# Gets the start time
+def getStartTime
+	i = 0
+	while i == 0
+		print "Start time of the event (format \"hh:mm AM/PM\"): "
+		time = gets.chomp
+		timeSplit = time.split(/\W+/)
+		if timeSplit[0].to_i > 12 or timeSplit[1].to_i > 59 or (timeSplit[2] != "AM" and timeSplit[2] != "PM")
+			puts "Please enter a valid start time."
+		else
+			i = i + 1
+		end
+	end
+	#format: hh:mm AM/PM
+	return timeSplit
+end
+
+# Gets the duration
+def getDuration
+	i = 0
+	while i == 0
+		print "Duration of the event (format \"hh:mm\"): "
+		duration = gets.chomp
+		durationSplit = duration.split(":")
+		if durationSplit[0].to_i > 23 or (durationSplit[0].to_i == 24 and durationSplit[1].to_i > 60)
+			puts "\nA hackathon is only 24 hours. Please state a smaller duration."
+		else
+			i = i + 1
+		end
+	#format: hh:m
+	end
+	return durationSplit
+end
+
+# Gets the number of attendees
+def getNumAttendees
+	print "Number of attendees: "
+	numAttendee = gets.chomp
+	#format: int
+	return numAttendee
+end
+
+def writeRoom(scheduleData)
+	puts "Gonna write some data!"
+end
+
+def reserveRoom(autoSchedule, rooms, schedule, building, room, date, startTime, duration, capacity, computersAvailable, seatingAvailable, seatingType, foodAllowed, priority, roomType)
+	i = 0
+	if autoSchedule == "T"
+		i = i + 1
+	end
+
+	while i == 0
+		puts "\nSelect a parameter for the room:\n"
+		puts "a - Enter a building"
+		puts "b - Enter a room number"
+		puts "c - Enter a date for your reservation"
+		puts "d - Enter a start time for your reservation"
+		puts "e - Enter a duration for your reservation"
+		puts "f - Enter a desired capacity for your reserved room"
+		puts "g - Mark if computers are necessary"
+		puts "h - Enter what seating needs to be available in your reserved room"
+		puts "i - Enter the type of seating in your reserved room"
+		puts "j - Enter if food needs to be allowed in your reserved room"
+		puts "k - Enter priority type for your reserved room"
+		puts "l - Enter type of room for your reserved room"
+		puts "q - CONTINUE"
+		
+		print "\nEnter your option: "
+		option = gets.chomp
+		if option == "a"
+			print "What building? "
+			building = gets.chomp
+		elsif option == "b"
+			print "What room? "
+			room = gets.chomp
+		elsif option == "c"
+			print "What date (format \"yyyy-mm-dd\")? "
+			date = gets.chomp
+		elsif option == "d"
+			print "What start time (format \"hh:mm AM/PM\")? "
+			startTime = gets.chomp
+		elsif option == "e"
+			print "What duration (format \"hh:mm\")? "
+			fullDuration = gets.chomp
+			durationSplit = fullDuration.split(":")
+			duration = durationSplit[0].to_i*60 + durationSplit[1].to_i
+		elsif option == "f"
+			print "What capacity? "
+			capacity = gets.chomp
+		elsif option == "g"
+			print "Are computers necessary (format \"Yes/No\")? "
+			computersAvailable = gets.chomp
+		elsif option == "h"
+			print "What seating is necessary?  "
+			seatingAvailable = gets.chomp
+		elsif option == "i"
+			print "What type of seating? "
+			seatingType = gets.chomp
+		elsif option == "j"
+			print "Does food need to be allowed (format \"Yes/No\")? "
+			foodAllowed = gets.chomp
+		elsif option == "k"
+			print "What priority? "
+			priority = gets.chomp
+		elsif option == "l"
+			print "What type of room? "
+			roomType = gets.chomp
+		elsif option == "q"
+			i = i + 1
+		else
+			puts "\n>>> Please enter a valid parameter."
+			puts "Press any key to continue."
+			gets.chomp
+		end
+	end
+	
+	durationValid = 1
+	counter = 0
+	while durationValid == 1
+		schedule.each do |scheduleData|
+			rooms.each do |roomData|
+				if (building == -1 or (scheduleData.building == building and roomData.building == building)) and (room == -1 or (scheduleData.room == room and roomData.room == room)) and (date == -1 or scheduleData.date == date) and (startTime == -1 or scheduleData.time == startTime) and (capacity == -1 or capacity >= roomData.capacity) and (computersAvailable == -1 or roomData.computersAvailable == computersAvailable) and (seatingAvailable == -1 or roomData.seatingAvailable == seatingAvailable) and (seatingType == -1 or roomData.seatingType == seatingType) and (foodAllowed == -1 or roomData.foodAllowed == foodAllowed) and (priority == -1 or roomData.priority == priority) and (roomType == -1 or roomData.roomType == roomType)
+					durationIntervals = (duration+1)/60
+					durationValid = 1
+					for x in 0..durationIntervals
+						if schedule[counter+x].available == "false"
+							durationValid = 0
+						end
+					end
+					if durationValid == 1
+						for y in 0..durationIntervals
+							writeRoom(schedule[counter+y])
+						end
+						validReply = 1
+						while validReply == 1
+							print "How does #{roomData.building} #{roomData.room} at #{scheduleData.time} on #{scheduleData.date} sound? (Y/N) "
+							reply = gets.chomp
+							if reply == "Y" or reply == "y" or reply == "yes" or reply == "Yes"
+								durationValid = 0
+								validReply = 0
+							elsif reply == "N" or reply == "n" or reply == "no" or reply == "No"
+								validReply = 0
+							else
+								puts "Please enter a valid reply!"
+							end
+						end
+					end
+				end
+			end
+		end
+		counter = counter + 1
+	end
+end
+
+=begin
+def openingRoom(rooms, numAttendee, startDate)
+	rooms.each do |roomData|
+		if roomData.capacity.to_i >= numAttendee.to_i
+			return roomData.building + " " + roomData.room
+		end
+	end
+end
+
+def finalRoom(rooms, numAttendee)
+	rooms.each do |roomData|
+		if roomData.capacity.to_i >= numAttendee.to_i
+			return roomData.building + " " + roomData.room
+		end
+	end
+end
+=end	
+#def meals
+
+#def 
+
+
+def menu (rooms, schedule)
+	i = 0
+	while i == 0
+		puts "A - Reserve a room."
+		puts "B - View events."
+		puts "Q - Quit"
+		
+
+		print "Enter your option: "
+		option = gets.chomp
+		if option == "A"
+			reserveRoom("F", rooms, schedule, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1)	
+		elsif option == "B"
+			i = i + 1
+		elsif option == "Q"
+			i = i + 1
+		else
+			puts "Please enter a valid option."
+		end
+	end
+end
+
+def main
+	print "What file will have the room data? "
+	roomFileName = gets.chomp
+	rooms = readRooms(roomFileName)
+	print "What file will have the schedule data? "
+	scheduleFileName = gets.chomp
+	schedule = readSchedule(scheduleFileName)
+	#puts rooms[2].building
+	
+	schedule = getEventDate(schedule)
+	#puts date[0-2]i
+	puts schedule[0].date
+	startTime = getStartTime
+	#puts startTime[0-2]
+	duration = getDuration
+	#puts duration[0-2]
+	numAttendee = getNumAttendees
+	#puts numAttendee
+
+	#puts "Opening Room: " + openingRoom(rooms, numAttendee)
+
+	menu(rooms, schedule)
+
+	#puts "Final Presentation and Awards: " + finalRoom(rooms, numAttendee)
+end
+main
+
+
