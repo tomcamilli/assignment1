@@ -323,6 +323,10 @@ Education,300,2020-02-16,05:00 PM,false,event
 Education,300,2020-02-17,03:00 PM,false,event
 Education,300,2020-02-17,04:00 PM,false,event
 Education,300,2020-02-18,06:00 PM,false,event
-Education,300,2020-02-11,10:00 AM,false,opening ceremony
-Education,300,2020-02-12,02:00 AM,false,closing ceremony
-Stem,101,2020-02-11,03:00 PM,false,event
+Education,300,2020-02-11,02:00 AM,false,opening ceremony
+Education,300,2020-02-12,06:00 AM,false,closing ceremony
+STEM,220,2020-02-11,07:00 AM,false,meal
+STEM,220,2020-02-11,12:00 PM,false,meal
+STEM,220,2020-02-11,05:00 PM,false,meal
+STEM,220,2020-02-11,10:00 PM,false,meal
+STEM,220,2020-02-12,03:00 AM,false,meal
